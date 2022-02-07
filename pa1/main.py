@@ -11,7 +11,7 @@ class Node:
         self.g = float('inf')
         self.h = 0.0
         self.parent = None
-        self.notAdded = 1 # bool - starting value 1 mean it hasn't been searched
+        self.notAdded = True # bool - starting value means it hasn't been searched
         self.neighbors = []
 
 
@@ -19,19 +19,13 @@ class Node:
 start = []
 goal = []
 
-#for calculating a* h(x) - for the heuristic, use the "Manhattan distance" between 2 points
-def vertex_distance(curr):
+#for calculating h(x) - for the heuristic, use the "Manhattan distance" between 2 points
+def distance(curr):
     # shortest possible distance while hitting all vertices
     distance = math.sqrt(2) * min(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1])) + max(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1])) - min(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1]))
     return distance
 
-# for calculating theta* h(x) - for the heuristic, use distance line between 2 points
-def line_distance(curr):
-    # shortest possible distance
-    distance = math.sqrt(pow(goal[0]-curr.vertex[0], 2) + pow(goal[1]-curr.vertex[1], 2))
-    return distance
-
-# for calculating a* g(x) - path cost so far from start to current node
+# for calculating g(x) - path cost so far from start to current node
 def cost(parent, curr):
     # straight across edge
     if (curr.vertex[0] == parent.vertex[0] or curr.vertex[1] == parent.vertex[1]):
@@ -44,8 +38,7 @@ def cost(parent, curr):
 def add_neighbors(curr, grid):
 
     neighbors = []
-    x = curr.vertex[0]-1
-    y = curr.vertex[1]-1
+    x, y = curr.vertex[0]-1, curr.vertex[1]-1
 
     # up 1
     if y > 0:
@@ -88,9 +81,85 @@ def make_grid(size):
 
     return grid
 
+# main theta* update - finds if there is a shorter path thru a node's lineage
+def line_of_sight(grandparent, grandchild, blocked): # TODO
 
-# MAIN A* FUNCTION
-def a_star(size, blocked):
+    if grandparent is None:
+        return False
+    
+    x0, y0 = grandparent.vertex[0], grandparent.vertex[1]
+    x1, y1 = grandchild.vertex[0], grandchild.vertex[1]
+    x_distance, y_distance = (x1 - x0), (y1 - y0)
+    f = 0
+
+    if y_distance < 0:
+        y_distance = -y_distance
+        grandparent.vertex[1] = -1
+    else:
+        grandparent.vertex[1] = 1
+    if x_distance < 0:
+        x_distance = -x_distance
+        grandparent.vertex[0] = -1
+    else:
+        grandparent.vertex[0] = 1
+    
+    if x_distance >= y_distance:
+        while x0 != x1:
+            
+            f += y_distance
+            if f >= x_distance:
+                print('one')
+                print(x0+(0 if grandparent.vertex[0] == 1 else -1))
+                print(y0+(0 if grandparent.vertex[1] == 1 else -1))
+                if blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+                    return False
+                y0 += grandparent.vertex[1]
+                f -= x_distance
+            
+            print('two')
+            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
+            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
+            if f != 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+                return False
+            
+            print('three')
+            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
+            if y_distance == 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0] and [x0+(0 if grandparent.vertex[1] == 1 else -1)][y0-1]:
+                return False
+        
+        x0 += grandparent.vertex[0]
+    
+    else:
+        while y0 != y1:
+
+            f += x_distance
+            if f >= y_distance:
+                print('four')
+                print(x0+(0 if grandparent.vertex[0] == 1 else -1))
+                print(y0+(0 if grandparent.vertex[1] == 1 else -1))
+                if blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+                    return False
+                x0 += grandparent.vertex[0]
+                f -= y_distance
+            
+            print('five')
+            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
+            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
+            if f != 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+                return False
+            
+            print('six')
+            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
+            if x_distance == 0 and blocked[x0][y0+(0 if grandparent.vertex[1] == 1 else -1)] and [x0-1][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+                return False
+        
+        y0 += grandparent.vertex[1]
+    
+    return True
+
+
+# MAIN FUNCTION FOR BOTH A* AND THETA*
+def main(func, size, blocked):
 
     if start == goal:
         # testing
@@ -114,12 +183,12 @@ def a_star(size, blocked):
 
     start_node = grid[start[0]-1][start[1]-1]
     start_node.g = 0
-    start_node.h = vertex_distance(start_node)
+    start_node.h = distance(start_node)
     start_node.f = start_node.g + start_node.h
     start_node.neighbors = add_neighbors(start_node, grid)
 
-    start_node.notAdded = 0
-    open_list.put((start_node.f, start_node.h, start_node)) # use h value for choosing priority between node with equal f values
+    start_node.notAdded = False
+    open_list.put((start_node.f, start_node.h, start_node)) # use h value for choosing priority between nodes with equal f values
     # testing
     print(f"Start{start_node.vertex} - f = {start_node.g} + {start_node.h} = {start_node.f}")
 
@@ -143,20 +212,32 @@ def a_star(size, blocked):
         curr.neighbors = add_neighbors(curr, grid)
         for neighbor in curr.neighbors:
 
-            path_cost = curr.g + cost(curr, neighbor)
+            # THETA* FUNCTION - path 2
+            if func == 'theta' and line_of_sight(curr.parent, neighbor, blocked):
+               
+                path_cost = curr.parent.g + cost(curr.parent, neighbor)
+                if path_cost < neighbor.g:
+                    neighbor.parent = curr.parent
+                    neighbor.g = path_cost
             
-            if path_cost < neighbor.g:
+            # A* FUNCTION & THETA* FUNCTION - path 1
+            else:
+                
+                path_cost = curr.g + cost(curr, neighbor)
+                if path_cost < neighbor.g:
                     neighbor.parent = curr
                     neighbor.g = path_cost
-                    neighbor.h = vertex_distance(neighbor)
-                    neighbor.f = neighbor.g + neighbor.h
+
+
+            neighbor.h = distance(neighbor)
+            neighbor.f = neighbor.g + neighbor.h
                     
-                    if neighbor.notAdded:
-                        neighbor.notAdded = 0
-                        open_list.put((neighbor.f, neighbor.h, neighbor))
-                        # testing
-                        print(f"Node{neighbor.vertex} - f = {neighbor.g} + {neighbor.h} = {neighbor.f}")
-                        
+            if neighbor.notAdded:
+                neighbor.notAdded = False
+                open_list.put((neighbor.f, neighbor.h, neighbor))
+                # testing
+                print(f"Node{neighbor.vertex} - f = {neighbor.g} + {neighbor.h} = {neighbor.f}")
+
 
     print("No possible path.")
     return
@@ -194,6 +275,5 @@ if __name__ == "__main__":
         # testing
         print(f"blocked cells: {blocked}")
 
-        a_star(size, blocked)
-
-
+        func = ['a', 'theta']
+        main(func[1], size, blocked)
