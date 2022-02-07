@@ -1,7 +1,14 @@
+# -------------------------------------------------------------------------- #
+#   H - Python Package Imports                           
+# -------------------------------------------------------------------------- #
 from matplotlib import pyplot as plt
 from matplotlib import colors
+import numpy as np
 import sys
 
+# -------------------------------------------------------------------------- #
+#   H - Read in Text File Input                    
+# -------------------------------------------------------------------------- #
 with open(sys.argv[1]) as f:
         # NOTES:
         # - - - - - - - - - - - -
@@ -44,8 +51,35 @@ with open(sys.argv[1]) as f:
         
         # print(blockgrid)
 
-cmap = colors.ListedColormap(['white','dimgrey'])
-plt.figure(figsize=(gridsize[0],gridsize[1]), num="CS440 - Intro to Artificial Intelligence")
+# -------------------------------------------------------------------------- #
+#   H - Matrix Window Properties                            
+# -------------------------------------------------------------------------- #
+fig, ax = plt.subplots(figsize=(7,5), num="CS440 - Intro to Artificial Intelligence")
+
 plt.title('Problem 1: Any-Angle Path Planning')
-plt.pcolor(blockgrid[::-1],cmap=cmap, edgecolors='k', linewidths=1)
+
+plt.gca().invert_yaxis()
+plt.gca().xaxis.tick_top()
+plt.gca().xaxis.set_tick_params(labeltop=True)
+
+xaxis = np.zeros(gridsize[0]+1)
+yaxis = np.zeros(gridsize[1]+1)
+for i in range(gridsize[0]+1):
+    xaxis[i] = i+1
+
+for j in range(gridsize[1]+1):
+    yaxis[j] = j+1
+
+plt.xticks(np.arange(gridsize[0]+1), xaxis)
+plt.yticks(np.arange(gridsize[1]+1), yaxis)
+
+cmap = colors.ListedColormap(['white','dimgrey'])
+plt.pcolor(blockgrid[::],cmap=cmap, edgecolors='k', linewidths=1)
+
+# -------------------------------------------------------------------------- #
+#   H - Mapping Plot Points                              
+# -------------------------------------------------------------------------- #
+ax.plot(startpoint[0]-1, startpoint[1]-1, gid=1, marker='o')
+ax.plot(goalpoint[0]-1, goalpoint[1]-1, gid=2, marker='o')
+
 plt.show()
