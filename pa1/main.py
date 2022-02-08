@@ -20,9 +20,15 @@ start = []
 goal = []
 
 #for calculating h(x) - for the heuristic, use the "Manhattan distance" between 2 points
-def distance(curr):
+def vertex_distance(curr):
     # shortest possible distance while hitting all vertices
     distance = math.sqrt(2) * min(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1])) + max(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1])) - min(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1]))
+    return distance
+
+# for calculating theta* h(x) - for the heuristic, use distance line between 2 points
+def line_distance(curr):
+    # shortest possible distance
+    distance = math.sqrt(pow(goal[0]-curr.vertex[0], 2) + pow(goal[1]-curr.vertex[1], 2))
     return distance
 
 # for calculating g(x) - path cost so far from start to current node
@@ -34,41 +40,70 @@ def cost(parent, curr):
         return math.sqrt(2)
 
 # create the list of neighbors for a given node
-# TODO: add stuff w/ blocked grid !!
-def add_neighbors(curr, grid):
+def add_neighbors(curr, grid, blocked):
 
     neighbors = []
     x, y = curr.vertex[0]-1, curr.vertex[1]-1
 
+    # UP/DOWN & LEFT/RIGHT LINES BLOCKED
+    # case 1: neighbor edge is between two blocked cells
+    # case 2: neighbor edge is between a blocked cell and lower bound
+    # case 3: neighbor edge is between a blocked cell and upper bound
+
     # up 1
     if y > 0:
-        neighbors.append(grid[x][y-1])
+        if not ((x == 0 and blocked[x][y-1]) # case 2
+            or (x == len(grid)-1 and blocked[x-1][y-1]) # case 3
+            or (x > 0 and blocked[x-1][y-1] and blocked[x][y-1])): # case 1
+            neighbors.append(grid[x][y-1])
+    
     # down 1
     if y < len(grid[0])-1:
-        neighbors.append(grid[x][y+1])
+        if not ((x == 0 and blocked[x][y]) # case 2
+            or (x == len(grid)-1 and blocked[x-1][y]) # case 3
+            or (x > 0 and blocked[x-1][y] and blocked[x][y])): # case 1
+                neighbors.append(grid[x][y+1])
+    
     # left 1
     if x > 0:
-        neighbors.append(grid[x-1][y])
+        if not ((y == 0 and blocked[x-1][y]) # case 2
+            or (y == len(grid[0])-1 and blocked[x-1][y-1]) # case 3
+            or (y > 0 and blocked[x-1][y-1] and blocked[x-1][y])): # case 1
+                neighbors.append(grid[x-1][y])
+    
     # right 1
     if x < len(grid)-1:
-        neighbors.append(grid[x+1][y])
+        if not ((y == 0 and blocked[x][y]) # case 2
+            or (y == len(grid[0])-1 and blocked[x][y-1]) # case 3
+            or (y > 0 and blocked[x][y-1] and blocked[x][y])): # case 1
+                neighbors.append(grid[x+1][y])
+    
+    # DIAGONAL LINES BLOCKED
+    # case 4: neighbor edge crosses through a blocked cell
+    
     # diagonal up & left
     if x > 0 and y > 0: 
-        neighbors.append(grid[x-1][y-1])
+        if not blocked[x-1][y-1]:
+            neighbors.append(grid[x-1][y-1])
+    
     # diagonal up & right
     if x < len(grid)-1 and y > 0:
-        neighbors.append(grid[x+1][y-1])
+        if not blocked[x][y-1]:
+            neighbors.append(grid[x+1][y-1])
+    
     # diagonal down & left
     if x > 0 and y < len(grid[0])-1:
-        neighbors.append(grid[x-1][y+1])
+        if not blocked[x-1][y]:
+            neighbors.append(grid[x-1][y+1])
+    
     # diagonal down & right
     if x < len(grid)-1 and y < len(grid[0])-1:
-        neighbors.append(grid[x+1][y+1])
+        if not blocked[x][y]:
+            neighbors.append(grid[x+1][y+1])
 
     return neighbors
 
 # files grid with default node objects holding the given vertex
-# TODO: add stuff w/ blocked grid !!
 def make_grid(size):
 
     grid = []
@@ -82,6 +117,7 @@ def make_grid(size):
     return grid
 
 # main theta* update - finds if there is a shorter path thru a node's lineage
+# TODO: THIS IS A MASSIVE MESS PLS IGNORE :(
 def line_of_sight(grandparent, grandchild, blocked): # TODO
 
     if grandparent is None:
@@ -162,7 +198,6 @@ def line_of_sight(grandparent, grandchild, blocked): # TODO
 def main(func, size, blocked):
 
     if start == goal:
-        # testing
         print("Start node is goal node.")
         return
 
@@ -183,9 +218,12 @@ def main(func, size, blocked):
 
     start_node = grid[start[0]-1][start[1]-1]
     start_node.g = 0
-    start_node.h = distance(start_node)
+    if func == 'a':
+        start_node.h = vertex_distance(start_node)
+    else:
+        start_node.h = line_distance(start_node)
     start_node.f = start_node.g + start_node.h
-    start_node.neighbors = add_neighbors(start_node, grid)
+    start_node.neighbors = add_neighbors(start_node, grid, blocked)
 
     start_node.notAdded = False
     open_list.put((start_node.f, start_node.h, start_node)) # use h value for choosing priority between nodes with equal f values
@@ -209,7 +247,7 @@ def main(func, size, blocked):
                 print(node.vertex)
             return
 
-        curr.neighbors = add_neighbors(curr, grid)
+        curr.neighbors = add_neighbors(curr, grid, blocked)
         for neighbor in curr.neighbors:
 
             # THETA* FUNCTION - path 2
@@ -229,7 +267,10 @@ def main(func, size, blocked):
                     neighbor.g = path_cost
 
 
-            neighbor.h = distance(neighbor)
+            if func == 'a':
+                neighbor.h = vertex_distance(neighbor)
+            else:
+                neighbor.h = line_distance(neighbor)
             neighbor.f = neighbor.g + neighbor.h
                     
             if neighbor.notAdded:
@@ -276,4 +317,4 @@ if __name__ == "__main__":
         print(f"blocked cells: {blocked}")
 
         func = ['a', 'theta']
-        main(func[1], size, blocked)
+        main(func[0], size, blocked)
