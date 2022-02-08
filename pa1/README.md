@@ -1,5 +1,5 @@
 # Assignment 1 - CS440 | Spring 2022
-Contributors : `Sammi Scalese`, `Kelci Mensah`, `Maya Barathy`
+Contributors : `Samantha Scalese`, `Kelci Mensah`, `Maya Barathy`
 
 ## Introduction
 
