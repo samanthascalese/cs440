@@ -1,6 +1,9 @@
-import sys, math
+import os, sys, math
 from queue import PriorityQueue
 
+# FOR TESTING
+MIN_TESTING = True
+MAX_TESTING = False
 
 # NODE OBJECT DEFINITION
 class Node:
@@ -205,14 +208,14 @@ def main(func, size, blocked):
     grid = make_grid(size)
 
     # testing
-    print("vertices:")
-    for x in range(size[0]+1):
-        print("(")
-        for y in range(size[1]+1):
-            print(grid[x][y].vertex)
-        print(")")
-    print()
-    #testing
+    if (MAX_TESTING):
+        print("vertices:")
+        for x in range(size[0]+1):
+            print("(")
+            for y in range(size[1]+1):
+                print(grid[x][y].vertex)
+            print(")")
+        print()
 
     open_list = PriorityQueue()
     closed_list = []
@@ -229,23 +232,27 @@ def main(func, size, blocked):
     start_node.notAdded = False
     open_list.put((start_node.f, start_node.h, id(start_node), start_node)) # use h value for choosing priority between nodes with equal f values
     # testing
-    print(f"Start{start_node.vertex} - f = {start_node.g} + {start_node.h} = {start_node.f}")
+    if (MAX_TESTING):
+        print(f"Start{start_node.vertex} - f = {start_node.g} + {start_node.h} = {start_node.f}")
 
     while not open_list.empty():
         
         curr = open_list.get()[3] # gets the node itself, not the (key, value) pair
         # testing
-        print()
-        print(curr.vertex)
+        if (MAX_TESTING):
+            print()
+            print(curr.vertex)
 
         # end of path
         if curr.vertex == goal:
             closed_list.append(curr)
             # testing
-            print()
-            print("Path is: ")
-            for node in closed_list:
-                print(node.vertex)
+            if (MIN_TESTING):
+                print()
+                print("Path is: ")
+                for node in closed_list:
+                    print(node.vertex)
+                print("- - - - - - - - - - - - - - - - - -")
             return
 
         curr.neighbors = add_neighbors(curr, grid, blocked)
@@ -278,7 +285,8 @@ def main(func, size, blocked):
                 neighbor.notAdded = False
                 open_list.put((neighbor.f, neighbor.h, id(neighbor), neighbor))
                 # testing
-                print(f"Node{neighbor.vertex} - f = {neighbor.g} + {neighbor.h} = {neighbor.f}")
+                if (MAX_TESTING):
+                    print(f"Node{neighbor.vertex} - f = {neighbor.g} + {neighbor.h} = {neighbor.f}")
 
         if curr.newNeighbor:
             closed_list.append(curr)
@@ -291,34 +299,40 @@ def main(func, size, blocked):
 # READ COMMAND LINE INPUT
 if __name__ == "__main__":
     
-    # opens command line input 1 as file "f", then auto-closes when done reading
-    with open(sys.argv[1]) as f:
+    # opens directory given in command line and runs all files
+    for file in os.listdir(sys.argv[1]):
+        # opens file "f", then auto-closes when done reading
+        with open(os.path.join(sys.argv[1], file)) as f:
         
-        line = f.readline()
-        split = line.split()
-        start = list(map(int, split)) # x = start[0], y = start[1]
-        # testing
-        print(f"start node: {start}")
-
-        line = f.readline()
-        split = line.split()
-        goal = list(map(int, split)) # x = goal[0], y = goal[1]
-        # testing
-        print(f"goal node: {goal}")
-
-        line = f.readline()
-        split = line.split()
-        size = list(map(int, split)) # x-length = size[0], y-length = size[1]
-        # testing
-        print(f"grid size: {size[0]} x {size[1]}")
-        
-        blocked = [[0 for y in range(size[1])] for x in range(size[0])]
-        for line in f:
+            line = f.readline()
             split = line.split()
-            cell = list(map(int, split)) # (x, y) = (cell[0]-1, cell[1]-1) b/c input starts at (1,1) not (0,0)
-            blocked[cell[0]-1][cell[1]-1] = cell[2] # blocked? = cell[2]
-        # testing
-        print(f"blocked cells: {blocked}")
+            start = list(map(int, split)) # x = start[0], y = start[1]
+            # testing
+            if (MIN_TESTING):
+                print(f"start node: {start}")
 
-        func = ['a', 'theta']
-        main(func[0], size, blocked)
+            line = f.readline()
+            split = line.split()
+            goal = list(map(int, split)) # x = goal[0], y = goal[1]
+            # testing
+            if (MIN_TESTING):
+                print(f"goal node: {goal}")
+
+            line = f.readline()
+            split = line.split()
+            size = list(map(int, split)) # x-length = size[0], y-length = size[1]
+            # testing
+            if (MIN_TESTING):
+                print(f"grid size: {size[0]} x {size[1]}")
+            
+            blocked = [[0 for y in range(size[1])] for x in range(size[0])]
+            for line in f:
+                split = line.split()
+                cell = list(map(int, split)) # (x, y) = (cell[0]-1, cell[1]-1) b/c input starts at (1,1) not (0,0)
+                blocked[cell[0]-1][cell[1]-1] = cell[2] # blocked? = cell[2]
+            # testing
+            if (MIN_TESTING):
+                print(f"blocked cells: {blocked}")
+
+            func = ['a', 'theta']
+            main(func[0], size, blocked)
