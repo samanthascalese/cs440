@@ -12,6 +12,7 @@ class Node:
         self.h = 0.0
         self.parent = None
         self.notAdded = True # bool - starting value means it hasn't been searched
+        self.newNeighbor = False # bool - starting value means it hasn't added any new neighbors to the open_list
         self.neighbors = []
 
 
@@ -19,7 +20,7 @@ class Node:
 start = []
 goal = []
 
-#for calculating h(x) - for the heuristic, use the "Manhattan distance" between 2 points
+#for calculating a* h(x) - for the heuristic, use the "Manhattan distance" between 2 points
 def vertex_distance(curr):
     # shortest possible distance while hitting all vertices
     distance = math.sqrt(2) * min(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1])) + max(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1])) - min(abs(curr.vertex[0]-goal[0]), abs(curr.vertex[1]-goal[1]))
@@ -226,20 +227,20 @@ def main(func, size, blocked):
     start_node.neighbors = add_neighbors(start_node, grid, blocked)
 
     start_node.notAdded = False
-    open_list.put((start_node.f, start_node.h, start_node)) # use h value for choosing priority between nodes with equal f values
+    open_list.put((start_node.f, start_node.h, id(start_node), start_node)) # use h value for choosing priority between nodes with equal f values
     # testing
     print(f"Start{start_node.vertex} - f = {start_node.g} + {start_node.h} = {start_node.f}")
 
     while not open_list.empty():
         
-        curr = open_list.get()[2] # gets the node itself, not the (key, value) pair
-        closed_list.append(curr)
+        curr = open_list.get()[3] # gets the node itself, not the (key, value) pair
         # testing
         print()
         print(curr.vertex)
 
         # end of path
         if curr.vertex == goal:
+            closed_list.append(curr)
             # testing
             print()
             print("Path is: ")
@@ -252,20 +253,19 @@ def main(func, size, blocked):
 
             # THETA* FUNCTION - path 2
             if func == 'theta' and line_of_sight(curr.parent, neighbor, blocked):
-               
+            
                 path_cost = curr.parent.g + cost(curr.parent, neighbor)
                 if path_cost < neighbor.g:
                     neighbor.parent = curr.parent
                     neighbor.g = path_cost
-            
+        
             # A* FUNCTION & THETA* FUNCTION - path 1
             else:
-                
+            
                 path_cost = curr.g + cost(curr, neighbor)
                 if path_cost < neighbor.g:
                     neighbor.parent = curr
                     neighbor.g = path_cost
-
 
             if func == 'a':
                 neighbor.h = vertex_distance(neighbor)
@@ -274,10 +274,14 @@ def main(func, size, blocked):
             neighbor.f = neighbor.g + neighbor.h
                     
             if neighbor.notAdded:
+                curr.newNeighbor = True
                 neighbor.notAdded = False
-                open_list.put((neighbor.f, neighbor.h, neighbor))
+                open_list.put((neighbor.f, neighbor.h, id(neighbor), neighbor))
                 # testing
                 print(f"Node{neighbor.vertex} - f = {neighbor.g} + {neighbor.h} = {neighbor.f}")
+
+        if curr.newNeighbor:
+            closed_list.append(curr)
 
 
     print("No possible path.")
