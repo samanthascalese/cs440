@@ -252,7 +252,6 @@ def main(func, size, blocked):
                 print("Path is: ")
                 for node in closed_list:
                     print(node.vertex)
-                print("- - - - - - - - - - - - - - - - - -")
             return
 
         curr.neighbors = add_neighbors(curr, grid, blocked)
@@ -336,3 +335,5 @@ if __name__ == "__main__":
 
             func = ['a', 'theta']
             main(func[0], size, blocked)
+        
+        print("- - - - - - - - - - - - - - - - - -")
