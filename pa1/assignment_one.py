@@ -10,7 +10,7 @@ import numpy as np
 
 # FOR TESTING
 MIN_TESTING = True
-MAX_TESTING = False
+MAX_TESTING = True
 
 # NODE OBJECT DEFINITION
 class Node:
@@ -131,78 +131,60 @@ def make_grid(size):
 
 # main theta* update - finds if there is a shorter path thru a node's lineage
 # TODO: THIS IS A MASSIVE MESS PLS IGNORE :(
-def line_of_sight(grandparent, grandchild, blocked): # TODO
+def line_of_sight(grandparent, grandchild, blocked_list): # TODO
 
     if grandparent is None:
         return False
-    
+
     x0, y0 = grandparent.vertex[0], grandparent.vertex[1]
     x1, y1 = grandchild.vertex[0], grandchild.vertex[1]
-    x_distance, y_distance = (x1 - x0), (y1 - y0)
     f = 0
+    dy, dx = (y1 - y0), (x1 - x0)
 
-    if y_distance < 0:
-        y_distance = -y_distance
-        grandparent.vertex[1] = -1
+    if dy < 0:
+        dy = -dy
+        sy = -1
     else:
-        grandparent.vertex[1] = 1
-    if x_distance < 0:
-        x_distance = -x_distance
-        grandparent.vertex[0] = -1
-    else:
-        grandparent.vertex[0] = 1
+        sy = 1
     
-    if x_distance >= y_distance:
+    if dx < 0:
+        dx = -dx
+        sx = -1
+    else:
+        sx = 1
+
+    if dx >= dy:
         while x0 != x1:
-            
-            f += y_distance
-            if f >= x_distance:
-                print('one')
-                print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-                print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-                if blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+            f = f + dy
+            if f >= dx:
+                if (x0 + ((sx-1)//2), y0 + ((sy-1)//2)) in blocked_list:
                     return False
-                y0 += grandparent.vertex[1]
-                f -= x_distance
+                y0 = y0 + sy
+                f = f - dx
             
-            print('two')
-            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-            if f != 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+            if f != 0 and (x0 + ((sx-1)//2), y0 + ((sy-1)//2)) in blocked_list:
                 return False
             
-            print('three')
-            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-            if y_distance == 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0] and [x0+(0 if grandparent.vertex[1] == 1 else -1)][y0-1]:
+            if dy == 0 and (x0 + ((sx-1)//2), y0) in blocked_list and (x0 + ((sx-1)//2), y0-1) in blocked_list:
                 return False
-        
-        x0 += grandparent.vertex[0]
-    
+            
+            x0 = x0 + sx
     else:
         while y0 != y1:
-
-            f += x_distance
-            if f >= y_distance:
-                print('four')
-                print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-                print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-                if blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+            f = f + dx
+            if f >= dy:
+                if (x0 + ((sx-1)//2), y0 + ((sy-1)//2)) in blocked_list:
                     return False
-                x0 += grandparent.vertex[0]
-                f -= y_distance
+                x0 = x0 + sx
+                f = f - dy
             
-            print('five')
-            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-            if f != 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+            if f != 0 and (x0 + ((sx-1)//2), y0 + ((sy-1)//2)) in blocked_list:
+                return False
+
+            if dx == 0 and (x0, y0 + ((sy-1)//2)) in blocked_list and (x0-1, y0 + ((sy-1)//2)) in blocked_list:
                 return False
             
-            print('six')
-            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-            if x_distance == 0 and blocked[x0][y0+(0 if grandparent.vertex[1] == 1 else -1)] and [x0-1][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
-                return False
-        
-        y0 += grandparent.vertex[1]
+            y0 = y0 + sy
     
     return True
 
@@ -218,14 +200,14 @@ def main(func, size, blocked, correctpath):
     grid = make_grid(size)
 
     # testing
-    if (MAX_TESTING):
-        print("vertices:")
-        for x in range(size[0]+1):
-            print("(")
-            for y in range(size[1]+1):
-                print(grid[x][y].vertex)
-            print(")")
-        print()
+    # if (MAX_TESTING):
+    #     print("vertices:")
+    #     for x in range(size[0]+1):
+    #         print("(")
+    #         for y in range(size[1]+1):
+    #             print(grid[x][y].vertex)
+    #         print(")")
+    #     print()
 
     open_list = PriorityQueue()
     closed_list = []
@@ -350,7 +332,7 @@ if __name__ == "__main__":
                 print(f"blocked cells: {blocked}")
 
             func = ['a', 'theta']
-            correctpath = main(func[0], size, blocked, correctpath).copy()
+            correctpath = main(func[1], size, blocked, correctpath).copy()
         
         print("- - - - - - - - - - - - - - - - - -")
 
@@ -370,9 +352,8 @@ column = size[0] + 1    # x axis
 row = size[1] + 1   # y axis
 
 xaxis = np.zeros(column)
-print("rows ", row)
-
 yaxis = np.zeros(row)
+
 for i in range(column):
     xaxis[i] = i+1
 
@@ -403,25 +384,16 @@ def on_pick(event): # TODO
     # print ('{} Vertices Picked'.format(len(ind)))
     # print ('Pick between vertices {} and {}'.format(min(ind), max(ind)+1))
     # print ('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
-    print ('You are currently looking at:', x[ind[0]]+1, y[ind[0]]+1)
+    print ('You are currently looking at vertex: [', y[ind[0]]+1,",",x[ind[0]]+1,"]")
 
 tolerance = 70 # number of points plotted
 
-# plotted points on the graph (not to be confused with variable calculations)
-# mplstart= [start[0]-1, goal[0]-1]
-# print("start", mplstart)
-# mplgoal = [start[1]-1, goal[1]-1]
-# plt.scatter(x_values, y_values, s=markingsize) 
-# plt.plot(mplstart, mplgoal)
 ax.plot(start[1]-1, start[0]-1, marker='o', picker=tolerance, color="#F45B69")  # start is always red/pink
-print("start", start[1]-1, start[0]-1)
+
 ax.plot(goal[1]-1, goal[0]-1, marker='o', picker=tolerance, color="#137547")    # goal is always green
 
 fig.canvas.callbacks.connect('pick_event', on_pick)
-
-# mplpaths = np.empty(correctpath, dtype = int)
-# print(correctpath)
-# convert correctpath list to numpy array 
+ 
 pavedpath = np.array(correctpath)
 
 xx, yy = pavedpath.T
