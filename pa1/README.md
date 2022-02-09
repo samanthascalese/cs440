@@ -45,15 +45,29 @@ h-values h(s) = c(s, sgoal) for this example search problem, similar to Figures 
 (5 points)
 ``` 
 
-Shortest grid path = (1 + 1.4 + 1.4) = 3.8 units \linebreak
-Shortest any angle path = (1.4 + 2.23) = 3.63 units \linebreak
+Shortest grid path = (1 + 1.4 + 1.4) = 3.8 units 
+Shortest any angle path = (1.4 + 2.23) = 3.63 units 
+
 
 
 ### Problem 1(c): Implementing A*
 (ii) Manually compute and show traces of A* with the h-values from Equation 1. \linebreak
-Using A* the shortest path is 
 
-(iii) Manually compute and show traces of Theta*. \linebreak
+Using A* the shortest path is from A4 to B3 to C2 to C1
+A4 -> g(n) = 0, h(n) = 3.8, A4 = 0 + 3.8 = 3.8
+B3 -> g(n) = 1.4, h(n) = 2.4, B3 = 1.4 + 2.4 = 3.8 
+C2 -> g(n) = 1, h(n) = 2, C2 = 1 + 2 = 3
+C1 -> g(n) 3.8, h(n) = 0, C1 = 0 + 3.8 = 3.8
+The shortest path using A* = 3.8 + 3.8 + 3 + 3.8 = 14.4 units
+
+(iii) Manually compute and show traces of Theta*. 
+Using Theta* the shortest path is from A4 to B3 to C1
+A4 -> g(n) = 0, h(n) = 1.4, A4 = 1.4
+B3 -> g(n) = 1.4 h(n) = 2.24, B3 = 3.64
+C1 -> g(n) = 2.24, h(n) = 0, C1 = 2.24
+
+The shortest path using Theta* = 1.4 + 3.64 + 2.24 = 7.28 units 
+
 
 c) Implement the A* algorithm for a given start and goal location for the grid environments. Describe in your report what you had to implement in order to have the A* algorithm working. \linebreak
 
