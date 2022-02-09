@@ -10,7 +10,7 @@ import numpy as np
 
 # FOR TESTING
 MIN_TESTING = True # always keep 'True' for output
-MAX_TESTING = True
+MAX_TESTING = False
 
 # NODE OBJECT DEFINITION
 class Node:
@@ -205,7 +205,7 @@ def main(func, size, blocked):
                 blocked_list.append((x+1, y+1))
     # testing
     if (MIN_TESTING):
-        print(blocked_list)
+        print(f"blocked cells: {blocked_list}")
 
     open_list = PriorityQueue()
     closed_list = []
@@ -237,37 +237,43 @@ def main(func, size, blocked):
         # end of path
         if curr.vertex == goal:
             closed_list.append(curr)
+            correct_path = []
             if func == 'a':
-                correct_path = closed_list
+                for node in closed_list:
+                    correct_path.append(node.vertex)
+                
                 # testing
                 if (MIN_TESTING):
                     print()
                     print("Path is: ")
-                    for node in correct_path:
-                        print(node.vertex)
+                    for vertex in correct_path:
+                        print(vertex)
                         
                 return correct_path
             else:
-                correct_path = []
+                temp_path = []
                 prev = None
                 for node in closed_list:
                     if node.parent == None:
-                        correct_path.append(node)
+                        temp_path.append(node)
                         prev = node
                     else:
                         if node.parent != prev:
-                            correct_path.append(node.parent)
+                            temp_path.append(node.parent)
                             prev = node.parent
                 
                 if curr not in correct_path:
-                    correct_path.append(curr)
+                    temp_path.append(curr)
+
+                for node in temp_path:
+                    correct_path.append(node.vertex)
                 
                 #testing
                 if (MIN_TESTING):
                     print()
                     print("Path is:")
-                for node in correct_path:
-                    print(f"{node.vertex} - w/ parent{' None' if node.parent == None else node.parent.vertex}")
+                    for vertex in correct_path:
+                        print(vertex)
                 
                 return correct_path
 
