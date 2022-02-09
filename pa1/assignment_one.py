@@ -10,7 +10,7 @@ import numpy as np
 
 # FOR TESTING
 MIN_TESTING = True # always keep 'True' for output
-MAX_TESTING = False
+MAX_TESTING = True
 
 # NODE OBJECT DEFINITION
 class Node:
@@ -277,7 +277,6 @@ def main(func, size, blocked):
                 
                 return correct_path
 
-
         curr.neighbors = add_neighbors(curr, grid, blocked)
         for neighbor in curr.neighbors:
             # THETA* FUNCTION - path 2
@@ -312,7 +311,6 @@ def main(func, size, blocked):
 
         if curr.newNeighbor:
             closed_list.append(curr)
-
 
     print("No possible path.")
     return
@@ -367,7 +365,6 @@ if __name__ == "__main__":
 fig, ax = plt.subplots(figsize=(10,8), num="CS440 - Intro to Artificial Intelligence")
 
 plt.title("Problem 1: Any-Angle Path Planning")
-# plt.title('Click on plotted points for the g(), f(), and h() values!', fontsize=12) 
 
 plt.gca().invert_yaxis()
 plt.gca().xaxis.tick_top()
@@ -396,34 +393,21 @@ plt.pcolor(blocked[::],cmap=cmap, edgecolors='k', linewidths=0.5)
 # -------------------------------------------------------------------------- #
 #   Mapping Plot Points (w/ Interactive Information)                             
 # -------------------------------------------------------------------------- #
-# markingsize = 40
 
-# TODO: make it so the map is the right size? also add h, g, f printouts
-
-def on_pick(event): # TODO
+def on_pick(event):
     artist = event.artist
     xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
-    # print ('Artist picked:', event.artist)
-    # print ('{} Vertices Picked'.format(len(ind)))
-    # print ('Pick between vertices {} and {}'.format(min(ind), max(ind)+1))
-    # print ('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
     x, y = artist.get_xdata(), artist.get_ydata()
     ind = event.ind
     print ('You are currently looking at vertex: [', y[ind[0]]+1,",",x[ind[0]]+1,"]")
 
 tolerance = 70 # area of clickability for interactive event "on_pick"
-
-# ax.plot(goal[1]-1, goal[0]-1, marker='o', picker=tolerance, color="#137547")    # goal is always green
-
-
 fig.canvas.callbacks.connect('pick_event', on_pick)
  
 pavedpath = np.array(correct_path)
-
 xx, yy = pavedpath.T
 
 for i in range(len(pavedpath)):
-
     if i == 0:
         plt.scatter(pavedpath[0,1]-1, pavedpath[0,0]-1, color="#000000")    # start is always black
     elif i == len(pavedpath)-1:
