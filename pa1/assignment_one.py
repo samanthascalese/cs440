@@ -365,7 +365,7 @@ plt.yticks(np.arange(row), yaxis)
 ax.set_xticklabels(xaxis.astype(int))
 ax.set_yticklabels(yaxis.astype(int))
 
-cmap = colors.ListedColormap(['white','steelblue']) # https://matplotlib.org/2.0.2/examples/color/named_colors.html
+cmap = colors.ListedColormap(['white','#CBEFB6']) # https://matplotlib.org/2.0.2/examples/color/named_colors.html
 plt.pcolor(blocked[::],cmap=cmap, edgecolors='k', linewidths=0.5)
 
 # -------------------------------------------------------------------------- #
@@ -386,17 +386,29 @@ def on_pick(event): # TODO
     # print ('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
     print ('You are currently looking at vertex: [', y[ind[0]]+1,",",x[ind[0]]+1,"]")
 
-tolerance = 70 # number of points plotted
+tolerance = 70 # area of clickability for interactive event "on_pick"
 
-ax.plot(start[1]-1, start[0]-1, marker='o', picker=tolerance, color="#F45B69")  # start is always red/pink
+# ax.plot(start[1]-1, start[0]-1, marker='o', picker=tolerance, color="#F45B69")  # start is always red/pink
+# ax.plot(goal[1]-1, goal[0]-1, marker='o', picker=tolerance, color="#137547")    # goal is always green
 
-ax.plot(goal[1]-1, goal[0]-1, marker='o', picker=tolerance, color="#137547")    # goal is always green
 
 fig.canvas.callbacks.connect('pick_event', on_pick)
  
 pavedpath = np.array(correctpath)
 
 xx, yy = pavedpath.T
-plt.scatter(yy-1,xx-1)
-plt.plot(yy-1,xx-1)
+
+# for i in range(10):
+#     y = np.random.random()
+#     plt.scatter(i, y)
+#     plt.pause(0.15)
+
+
+for i in range(len(pavedpath)):
+    plt.scatter(yy-1,xx-1)
+    plt.pause(0.15) 
+
+    if (i == len(pavedpath)-1):
+        ax.plot(yy-1,xx-1, picker=tolerance, color="#635D5C")   
+
 plt.show()
