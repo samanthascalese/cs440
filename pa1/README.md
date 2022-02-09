@@ -1,7 +1,9 @@
 # [CS440] Assignment 1 | Spring 2022
 Contributors : `Samantha Scalese`, `Kelci Mensah`, `Maya Barathy`
 
-<p align="center"> [Setup Test Environment](#Setup-Test-Evironment) • [Demonstration](#) </p>
+<div align="center">
+
+[Getting Started](#Getting-Started) • [Quick Demo](#) </div>
 
 ## Table of Contents
 - [Problem 1: Any-Angle Path Planning](#)
@@ -13,10 +15,10 @@ Contributors : `Samantha Scalese`, `Kelci Mensah`, `Maya Barathy`
 
 <hr>
 
-## Setup Test Evironment
+### Getting Started
 💋 all packages used within this assignment are available on the Rutgers University CS iLab machines.
 
-
+### Quick Demo
 ## Introduction
 
 a) Create an interface so as to create and visualize the 50 eight-neighbor grids you are going to use for the experiment.  \linebreak
