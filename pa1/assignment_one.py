@@ -9,7 +9,7 @@ from matplotlib import colors
 import numpy as np
 
 # FOR TESTING
-MIN_TESTING = True
+MIN_TESTING = True # always keep 'True' for output
 MAX_TESTING = True
 
 # NODE OBJECT DEFINITION
@@ -27,7 +27,7 @@ class Node:
 
 start = []
 goal = []
-correctpath = []
+correct_path = []
 
 # -------------------------------------------------------------------------- #
 #   HELPER FUNCTIONS                           
@@ -130,8 +130,7 @@ def make_grid(size):
     return grid
 
 # main theta* update - finds if there is a shorter path thru a node's lineage
-# TODO: THIS IS A MASSIVE MESS PLS IGNORE :(
-def line_of_sight(grandparent, grandchild, blocked_list): # TODO
+def line_of_sight(grandparent, grandchild, blocked_list):
 
     if grandparent is None:
         return False
@@ -191,7 +190,7 @@ def line_of_sight(grandparent, grandchild, blocked_list): # TODO
 # -------------------------------------------------------------------------- #
 #   MAIN FUNCTION FOR BOTH A* AND THETA*                         
 # -------------------------------------------------------------------------- #
-def main(func, size, blocked, correctpath):
+def main(func, size, blocked):
 
     if start == goal:
         print("Start node is goal node.")
@@ -199,15 +198,14 @@ def main(func, size, blocked, correctpath):
 
     grid = make_grid(size)
 
+    blocked_list = [] # for theta*
+    for x in range(len(blocked)):
+        for y in range(len(blocked[0])):
+            if blocked[x][y] == 1:
+                blocked_list.append((x+1, y+1))
     # testing
-    # if (MAX_TESTING):
-    #     print("vertices:")
-    #     for x in range(size[0]+1):
-    #         print("(")
-    #         for y in range(size[1]+1):
-    #             print(grid[x][y].vertex)
-    #         print(")")
-    #     print()
+    if (MIN_TESTING):
+        print(blocked_list)
 
     open_list = PriorityQueue()
     closed_list = []
@@ -225,6 +223,7 @@ def main(func, size, blocked, correctpath):
     open_list.put((start_node.f, start_node.h, id(start_node), start_node)) # use h value for choosing priority between nodes with equal f values
     # testing
     if (MAX_TESTING):
+        print()
         print(f"Start{start_node.vertex} - f = {start_node.g} + {start_node.h} = {start_node.f}")
 
     while not open_list.empty():
@@ -238,24 +237,45 @@ def main(func, size, blocked, correctpath):
         # end of path
         if curr.vertex == goal:
             closed_list.append(curr)
-            # testing
-            if (MIN_TESTING):
-                print()
-                print("Path is: ")
+            if func == 'a':
+                correct_path = closed_list
+                # testing
+                if (MIN_TESTING):
+                    print()
+                    print("Path is: ")
+                    for node in correct_path:
+                        print(node.vertex)
+                        
+                return correct_path
+            else:
+                correct_path = []
+                prev = None
                 for node in closed_list:
-                    print(node.vertex)
-                    correctpath.append(node.vertex)
-                    # correctpath +=1
-                    # print(correctpath)
-                    
+                    if node.parent == None:
+                        correct_path.append(node)
+                        prev = node
+                    else:
+                        if node.parent != prev:
+                            correct_path.append(node.parent)
+                            prev = node.parent
+                
+                if curr not in correct_path:
+                    correct_path.append(curr)
+                
+                #testing
+                if (MIN_TESTING):
+                    print()
+                    print("Path is:")
+                for node in correct_path:
+                    print(f"{node.vertex} - w/ parent{' None' if node.parent == None else node.parent.vertex}")
+                
+                return correct_path
 
-            return correctpath
 
         curr.neighbors = add_neighbors(curr, grid, blocked)
         for neighbor in curr.neighbors:
-
             # THETA* FUNCTION - path 2
-            if func == 'theta' and line_of_sight(curr.parent, neighbor, blocked):
+            if func == 'theta' and line_of_sight(curr.parent, neighbor, blocked_list):
             
                 path_cost = curr.parent.g + cost(curr.parent, neighbor)
                 if path_cost < neighbor.g:
@@ -328,11 +348,10 @@ if __name__ == "__main__":
                 cell = list(map(int, split)) # (x, y) = (cell[0]-1, cell[1]-1) b/c input starts at (1,1) not (0,0)
                 blocked[cell[0]-1][cell[1]-1] = cell[2] # blocked? = cell[2]
             # testing
-            if (MIN_TESTING):
-                print(f"blocked cells: {blocked}")
+            # if (MAX_TESTING):
+            #     print(f"blocked cells: {blocked}")
 
-            func = ['a', 'theta']
-            correctpath = main(func[1], size, blocked, correctpath).copy()
+            correct_path = main(sys.argv[2], size, blocked).copy()
         
         print("- - - - - - - - - - - - - - - - - -")
 
@@ -393,7 +412,7 @@ tolerance = 70 # area of clickability for interactive event "on_pick"
 
 fig.canvas.callbacks.connect('pick_event', on_pick)
  
-pavedpath = np.array(correctpath)
+pavedpath = np.array(correct_path)
 
 xx, yy = pavedpath.T
 

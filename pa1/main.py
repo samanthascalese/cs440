@@ -2,7 +2,7 @@ import os, sys, math
 from queue import PriorityQueue
 
 # FOR TESTING
-MIN_TESTING = True
+MIN_TESTING = True # always keep 'True' for output
 MAX_TESTING = False
 
 # NODE OBJECT DEFINITION
@@ -22,6 +22,7 @@ class Node:
 # HELPER FUNCTIONS
 start = []
 goal = []
+correct_path = []
 
 #for calculating a* h(x) - for the heuristic, use the "Manhattan distance" between 2 points
 def vertex_distance(curr):
@@ -197,16 +198,6 @@ def main(func, size, blocked):
     if (MIN_TESTING):
         print(blocked_list)
 
-    # testing
-    if (MAX_TESTING):
-        print("vertices:")
-        for x in range(size[0]+1):
-            print("(")
-            for y in range(size[1]+1):
-                print(grid[x][y].vertex)
-            print(")")
-        print()
-
     open_list = PriorityQueue()
     closed_list = []
 
@@ -223,6 +214,7 @@ def main(func, size, blocked):
     open_list.put((start_node.f, start_node.h, id(start_node), start_node)) # use h value for choosing priority between nodes with equal f values
     # testing
     if (MAX_TESTING):
+        print()
         print(f"Start{start_node.vertex} - f = {start_node.g} + {start_node.h} = {start_node.f}")
 
     while not open_list.empty():
@@ -237,38 +229,38 @@ def main(func, size, blocked):
         if curr.vertex == goal:
             closed_list.append(curr)
             if func == 'a':
+                correct_path = closed_list
                 # testing
                 if (MIN_TESTING):
                     print()
                     print("Path is:")
-                    for node in closed_list:
+                    for node in correct_path:
                         print(node.vertex)
                     
-                return closed_list
+                return correct_path
             else:
-                final_path = []
+                correct_path = []
                 prev = None
-
                 for node in closed_list:
                     if node.parent == None:
-                        final_path.append(node)
+                        correct_path.append(node)
                         prev = node
                     else:
                         if node.parent != prev:
-                            final_path.append(node.parent)
+                            correct_path.append(node.parent)
                             prev = node.parent
                 
-                if curr not in final_path:
-                    final_path.append(curr)
+                if curr not in correct_path:
+                    correct_path.append(curr)
 
                 #testing
                 if (MIN_TESTING):
                     print()
                     print("Path is:")
-                for node in final_path:
+                for node in correct_path:
                     print(f"{node.vertex} - w/ parent{' None' if node.parent == None else node.parent.vertex}")
                 
-                return final_path
+                return correct_path
 
         
         curr.neighbors = add_neighbors(curr, grid, blocked)
@@ -346,10 +338,9 @@ if __name__ == "__main__":
                 cell = list(map(int, split)) # (x, y) = (cell[0]-1, cell[1]-1) b/c input starts at (1,1) not (0,0)
                 blocked[cell[0]-1][cell[1]-1] = cell[2] # blocked? = cell[2]
             # testing
-            if (MIN_TESTING):
-                print(f"blocked cells: {blocked}")
+            # if (MIN_TESTING):
+            #     print(f"blocked cells: {blocked}")
 
-            func = ['a', 'theta']
-            main(func[1], size, blocked)
+            main(sys.argv[2], size, blocked)
         
         print("- - - - - - - - - - - - - - - - - -")
