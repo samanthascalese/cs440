@@ -1,12 +1,12 @@
 # [CS440] Assignment 1 | Spring 2022
-Contributors : `Samantha Scalese`, `Kelci Mensah`, `Maya Barathy`
+Contributors: `Sammi Scalese`, `Kelci Mensah`, `Maya Barathy`
 
 <div align="center">
 
 [Getting Started](#Getting-Started) • [Quick Demo](#) </div>
 
-## Table of Contents
-- [Problem 1: Any-Angle Path Planning](#)
+### Table of Contents
+- [Problem 1: Any-Angle Path Planning](#Problem-1-(a)---Creating-a-Graphical-User-Interface)
     - [Problem 1(a) - Creating a Graphical User Interface](#)
     - [Problem 1(b) - Manual Computation of Shortest Path](#)
     - [Problem 1(c) - Implementing A*](#)
@@ -19,10 +19,13 @@ Contributors : `Samantha Scalese`, `Kelci Mensah`, `Maya Barathy`
 💋 all packages used within this assignment are available on the Rutgers University CS iLab machines.
 
 ### Quick Demo
-## Introduction
+[ insert video demonsration here ]
 
-a) Create an interface so as to create and visualize the 50 eight-neighbor grids you are going to use for the experiment.  \linebreak
+### Problem 1(a) - Creating a Graphical User Interface
+``Create an interface so as to create and visualize the 50 eight-neighbor grids you are going to use for the experiments. Your software should also be able to visualize: the start and the goal location, the path computed by an A*-family algorithm. Visualize the values h, g and ƒ computed by A*-family algorithms on each cell (e.g., after selecting with the mouse a specific cell, or after using the keyboard to specify which cell’s information to display). Use the images in this report from the traces of algorithms as a guide on how to design your visualization. Highlight in your report your visualization, its capabilities and what implemented for it.
+(10 points)``
 
+### Problem 1(a) - Creating a Graphical User Interface
 b) (i) Manually compute and show a shortest grid path and and a shortest any angle path for the example search problem from figure 7. \linebreak 
 
 Shortest grid path = (1 + 1.4 + 1.4) = 3.8 units \linebreak
