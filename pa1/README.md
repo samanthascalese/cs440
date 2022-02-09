@@ -1,5 +1,21 @@
-# Assignment 1 - CS440 | Spring 2022
+# [CS440] Assignment 1 | Spring 2022
 Contributors : `Samantha Scalese`, `Kelci Mensah`, `Maya Barathy`
+
+<p align="center"> [Setup Test Environment](#Setup-Test-Evironment) • [Demonstration](#) </p>
+
+## Table of Contents
+- [Problem 1: Any-Angle Path Planning](#)
+    - [Problem 1(a) - Creating a Graphical User Interface](#)
+    - [Problem 1(b) - Manual Computation of Shortest Path](#)
+    - [Problem 1(c) - Implementing A*](#)
+    - [Problem 1(d) - Implementing Theta*](#)
+    - [Problem 1(e) - Mathematical Proof of A*](#)
+
+<hr>
+
+## Setup Test Evironment
+💋 all packages used within this assignment are available on the Rutgers University CS iLab machines.
+
 
 ## Introduction
 
