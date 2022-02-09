@@ -121,79 +121,60 @@ def make_grid(size):
     return grid
 
 # main theta* update - finds if there is a shorter path thru a node's lineage
-# TODO: THIS IS A MASSIVE MESS PLS IGNORE :(
-def line_of_sight(grandparent, grandchild, blocked): # TODO
+def line_of_sight(grandparent, grandchild, blocked_list): # TODO
 
     if grandparent is None:
         return False
-    
+
     x0, y0 = grandparent.vertex[0], grandparent.vertex[1]
     x1, y1 = grandchild.vertex[0], grandchild.vertex[1]
-    x_distance, y_distance = (x1 - x0), (y1 - y0)
     f = 0
+    dy, dx = (y1 - y0), (x1 - x0)
 
-    if y_distance < 0:
-        y_distance = -y_distance
-        grandparent.vertex[1] = -1
+    if dy < 0:
+        dy = -dy
+        sy = -1
     else:
-        grandparent.vertex[1] = 1
-    if x_distance < 0:
-        x_distance = -x_distance
-        grandparent.vertex[0] = -1
-    else:
-        grandparent.vertex[0] = 1
+        sy = 1
     
-    if x_distance >= y_distance:
+    if dx < 0:
+        dx = -dx
+        sx = -1
+    else:
+        sx = 1
+
+    if dx >= dy:
         while x0 != x1:
-            
-            f += y_distance
-            if f >= x_distance:
-                print('one')
-                print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-                print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-                if blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+            f = f + dy
+            if f >= dx:
+                if (x0 + ((sx-1)//2), y0 + ((sy-1)//2)) in blocked_list:
                     return False
-                y0 += grandparent.vertex[1]
-                f -= x_distance
+                y0 = y0 + sy
+                f = f - dx
             
-            print('two')
-            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-            if f != 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+            if f != 0 and (x0 + ((sx-1)//2), y0 + ((sy-1)//2)) in blocked_list:
                 return False
             
-            print('three')
-            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-            if y_distance == 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0] and [x0+(0 if grandparent.vertex[1] == 1 else -1)][y0-1]:
+            if dy == 0 and (x0 + ((sx-1)//2), y0) in blocked_list and (x0 + ((sx-1)//2), y0-1) in blocked_list:
                 return False
-        
-        x0 += grandparent.vertex[0]
-    
+            
+            x0 = x0 + sx
     else:
         while y0 != y1:
-
-            f += x_distance
-            if f >= y_distance:
-                print('four')
-                print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-                print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-                if blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+            f = f + dx
+            if f >= dy:
+                if (x0 + ((sx-1)//2), y0 + ((sy-1)//2)) in blocked_list:
                     return False
-                x0 += grandparent.vertex[0]
-                f -= y_distance
+                x0 = x0 + sx
+                f = f - dy
             
-            print('five')
-            print(x0+(0 if grandparent.vertex[0] == 1 else -1))
-            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-            if f != 0 and blocked[x0+(0 if grandparent.vertex[0] == 1 else -1)][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
+            if f != 0 and (x0 + ((sx-1)//2), y0 + ((sy-1)//2)) in blocked_list:
+                return False
+
+            if dx == 0 and (x0, y0 + ((sy-1)//2)) in blocked_list and (x0-1, y0 + ((sy-1)//2)) in blocked_list:
                 return False
             
-            print('six')
-            print(y0+(0 if grandparent.vertex[1] == 1 else -1))
-            if x_distance == 0 and blocked[x0][y0+(0 if grandparent.vertex[1] == 1 else -1)] and [x0-1][y0+(0 if grandparent.vertex[1] == 1 else -1)]:
-                return False
-        
-        y0 += grandparent.vertex[1]
+            y0 = y0 + sy
     
     return True
 
@@ -203,9 +184,18 @@ def main(func, size, blocked):
 
     if start == goal:
         print("Start node is goal node.")
-        return
+        return [start]
 
     grid = make_grid(size)
+    
+    blocked_list = [] # for theta*
+    for x in range(len(blocked)):
+        for y in range(len(blocked[0])):
+            if blocked[x][y] == 1:
+                blocked_list.append((x+1, y+1))
+    # testing
+    if (MIN_TESTING):
+        print(blocked_list)
 
     # testing
     if (MAX_TESTING):
@@ -246,20 +236,46 @@ def main(func, size, blocked):
         # end of path
         if curr.vertex == goal:
             closed_list.append(curr)
-            # testing
-            if (MIN_TESTING):
-                print()
-                print("Path is: ")
-                for node in closed_list:
-                    print(node.vertex)
-            return
+            if func == 'a':
+                # testing
+                if (MIN_TESTING):
+                    print()
+                    print("Path is:")
+                    for node in closed_list:
+                        print(node.vertex)
+                    
+                return closed_list
+            else:
+                final_path = []
+                prev = None
 
+                for node in closed_list:
+                    if node.parent == None:
+                        final_path.append(node)
+                        prev = node
+                    else:
+                        if node.parent != prev:
+                            final_path.append(node.parent)
+                            prev = node.parent
+                
+                if curr not in final_path:
+                    final_path.append(curr)
+
+                #testing
+                if (MIN_TESTING):
+                    print()
+                    print("Path is:")
+                for node in final_path:
+                    print(f"{node.vertex} - w/ parent{' None' if node.parent == None else node.parent.vertex}")
+                
+                return final_path
+
+        
         curr.neighbors = add_neighbors(curr, grid, blocked)
         for neighbor in curr.neighbors:
-
             # THETA* FUNCTION - path 2
-            if func == 'theta' and line_of_sight(curr.parent, neighbor, blocked):
-            
+            if func == 'theta' and line_of_sight(curr.parent, neighbor, blocked_list):
+
                 path_cost = curr.parent.g + cost(curr.parent, neighbor)
                 if path_cost < neighbor.g:
                     neighbor.parent = curr.parent
@@ -334,6 +350,6 @@ if __name__ == "__main__":
                 print(f"blocked cells: {blocked}")
 
             func = ['a', 'theta']
-            main(func[0], size, blocked)
+            main(func[1], size, blocked)
         
         print("- - - - - - - - - - - - - - - - - -")
