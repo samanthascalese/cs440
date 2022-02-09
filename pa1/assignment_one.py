@@ -378,17 +378,16 @@ plt.pcolor(blocked[::],cmap=cmap, edgecolors='k', linewidths=0.5)
 def on_pick(event): # TODO
     artist = event.artist
     xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
-    x, y = artist.get_xdata(), artist.get_ydata()
-    ind = event.ind
     # print ('Artist picked:', event.artist)
     # print ('{} Vertices Picked'.format(len(ind)))
     # print ('Pick between vertices {} and {}'.format(min(ind), max(ind)+1))
     # print ('x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
+    x, y = artist.get_xdata(), artist.get_ydata()
+    ind = event.ind
     print ('You are currently looking at vertex: [', y[ind[0]]+1,",",x[ind[0]]+1,"]")
 
 tolerance = 70 # area of clickability for interactive event "on_pick"
 
-# ax.plot(start[1]-1, start[0]-1, marker='o', picker=tolerance, color="#F45B69")  # start is always red/pink
 # ax.plot(goal[1]-1, goal[0]-1, marker='o', picker=tolerance, color="#137547")    # goal is always green
 
 
@@ -398,15 +397,16 @@ pavedpath = np.array(correctpath)
 
 xx, yy = pavedpath.T
 
-# for i in range(10):
-#     y = np.random.random()
-#     plt.scatter(i, y)
-#     plt.pause(0.15)
-
-
 for i in range(len(pavedpath)):
-    plt.scatter(yy-1,xx-1)
-    plt.pause(0.15) 
+
+    if i == 0:
+        plt.scatter(pavedpath[0,1]-1, pavedpath[0,0]-1, color="#000000")    # start is always black
+    elif i == len(pavedpath)-1:
+        plt.scatter(pavedpath[len(pavedpath)-1,1]-1, pavedpath[len(pavedpath)-1,0]-1, color="#000000")
+    else:
+        plt.scatter(pavedpath[i,1]-1, pavedpath[i,0]-1)
+
+    plt.pause(0.45) 
 
     if (i == len(pavedpath)-1):
         ax.plot(yy-1,xx-1, picker=tolerance, color="#635D5C")   
