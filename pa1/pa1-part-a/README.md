@@ -10,7 +10,7 @@ Contributors: `Sammi Scalese`, `Kelci Mensah`, `Maya Barathy`
 ### Getting Started
 > *All packages used within this assignment are available on the Rutgers University CS iLab machines.
 
-1. Unzip the file and ensure that it contains the directory `test` and the following files: `README.md`, `assignment_one.py`,  `Assignment 1 Part A - Report.pdf`, and `path images`.
+1. Unzip the file and ensure that it contains the directory `test` and the following files: `README.md`, `assignment_one.py`, and `main.py`.
 
 2. Log into `https://weblogin.cs.rutgers.edu/guacamole-1.3.0/` and select any of the iLab machine domains. 
 
