@@ -45,6 +45,8 @@ def print_value_grid(values):
     color = []
     for val in values:
         if val <= 0.25:
+            color.append(Fore.RED)
+        elif val <= 0.5:
             color.append(Fore.LIGHTRED_EX)
         elif val <= 0.75:
             color.append(Fore.LIGHTGREEN_EX)
@@ -66,6 +68,8 @@ def print_policy_grid(values):
     color = []
     for val in values:
         if val <= 0.25:
+            color.append(Fore.RED)
+        elif val <= 0.5:
             color.append(Fore.LIGHTRED_EX)
         elif val <= 0.75:
             color.append(Fore.LIGHTGREEN_EX)
@@ -98,7 +102,7 @@ def print_policy_grid(values):
 
 
 
-def value_iteration(threshold=0.0001, gamma=0.8):
+def value_iteration(threshold=0.0001, gamma=0.9):
 
     def calulate_v(v, state, action):
 
