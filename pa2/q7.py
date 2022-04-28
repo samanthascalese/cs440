@@ -103,7 +103,8 @@ def value_iteration(threshold=0.0001, gamma=0.8):
     def calulate_v(v, state, action):
 
         [(prob, next_state)] = T[state][action]
-        val = prob * gamma * v[next_state]
+        #V(s) = R(s) + P(s, a, s') * gamma * V(s')
+        val = MAP[state] + (prob * gamma * v[next_state])
 
         return val
     
