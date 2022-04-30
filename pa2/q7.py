@@ -102,7 +102,7 @@ def print_policy_grid(values):
 
 
 
-def value_iteration(threshold=0.0001, gamma=0.9):
+def value_iteration(threshold=0.0001, gamma=1):
 
     def calulate_v(v, state, action):
 
@@ -154,6 +154,10 @@ def value_iteration(threshold=0.0001, gamma=0.9):
             for action in actions:
 
                 action_rewards[action] = calulate_v(v, state, action)
+
+                print(f'action {action+1} from state {state+1} results in P = {action_rewards[action]:.3f} to get to goal state.')
+
+            print()
 
             # maximize rewards
             best_action = np.max(action_rewards)
