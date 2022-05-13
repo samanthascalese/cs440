@@ -1,0 +1,1 @@
+pip3 install pandas && pip3 install seaborn && export PATH="$PATH:/koko/system/anaconda/bin" && source activate python38 && jupyter notebook q5.ipynb
